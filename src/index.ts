@@ -151,7 +151,7 @@ events.on('auction:changed', () => {
     page.counter = appData.getClosedLots().length;
     bids.items = appData.getActiveLots().map(item => {
         const card = new BidItem(cloneTemplate(cardBasketTemplate), {
-            onClick: () => events.emit('preview: changed', item)
+            onClick: () => events.emit('preview:changed', item)
         });
         return card.render({
             title: item.title,
@@ -179,8 +179,8 @@ events.on('auction:changed', () => {
                 amount: item.price,
                 status: item.isMyBid
             }
-        })
-    })
+        });
+    });
     basket.selected = appData.order.items;
     basket.total = total;
 })
