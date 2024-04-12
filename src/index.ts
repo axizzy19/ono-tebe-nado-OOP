@@ -25,14 +25,14 @@ events.onAll(({ eventName, data }) => {
 // Все шаблоны
 const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card');
 const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#preview');
-const orderTemplate = ensureElement<HTMLTemplateElement>('#order');
 const auctionTemplate = ensureElement<HTMLTemplateElement>('#auction');
-const tabsTemplate = ensureElement<HTMLTemplateElement>('#tabs');
+const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#bid');
 const bidsTemplate = ensureElement<HTMLTemplateElement>('#bids');
 const basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
-const successTemplate = ensureElement<HTMLTemplateElement>('#success');
-const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#bid');
+const tabsTemplate = ensureElement<HTMLTemplateElement>('#tabs');
 const soldTemplate = ensureElement<HTMLTemplateElement>('#sold');
+const orderTemplate = ensureElement<HTMLTemplateElement>('#order');
+const successTemplate = ensureElement<HTMLTemplateElement>('#success');
 
 // Модель данных приложения
 const appData = new AppState({}, events);
@@ -42,15 +42,15 @@ const page = new Page(document.body, events);
 const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
 
 // Переиспользуемые части интерфейса
-const order = new Order(cloneTemplate(orderTemplate), events);
+const bids = new Basket(cloneTemplate(bidsTemplate), events);
+const basket = new Basket(cloneTemplate(basketTemplate), events);
 const tabs = new Tabs(cloneTemplate(tabsTemplate), {
     onClick: (name) => {
         if (name === 'closed') events.emit('basket:open');
         else events.emit('bids:open');
     }
-})
-const basket = new Basket(cloneTemplate(basketTemplate), events);
-const bids = new Basket(cloneTemplate(bidsTemplate), events);
+});
+const order = new Order(cloneTemplate(orderTemplate), events);
 
 // Дальше идет бизнес-логика
 // Поймали событие, сделали что нужно
@@ -60,7 +60,7 @@ events.on<CatalogChangeEvent>('items:changed', () => {
     page.catalog = appData.catalog.map(item => {
         const card = new CatalogItem(cloneTemplate(cardCatalogTemplate), {
             onClick: () => events.emit('card:select', item)
-        })
+        });
 
         // отрисовалась карточка
         return card.render({
