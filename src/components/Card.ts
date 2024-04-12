@@ -1,4 +1,4 @@
-import { bem, createElement, ensureElement } from "../utils/utils";
+import { bem, formatNumber, createElement, ensureElement } from "../utils/utils";
 import { Component } from "./base/Component";
 import { LotStatus } from "../types/index";
 import clsx from "clsx";
@@ -151,28 +151,57 @@ export class Auction extends Component<AuctionStatus> {
     set label(value: string) {
         this.setText(this._label, value);
     }
-    // set nextBid(value: number) {
-    //     this._input.value = String(value);
-    // }
-    // set history(value: number[]) {
-    //     this._bids.replaceChildren(...value.map(item => createElement<HTMLUListElement>('li', {
-    //         className: 'lot__history-item',
-    //         textContent: formatNumber(item)
-    //     })));
-    // }
-    // set status(value: LotStatus) {
-    //     if (value !== 'active') {
-    //         this.setHidden(this._history);
-    //         this.setHidden(this._form);
-    //     } else {
-    //         this.setVisible(this._history);
-    //         this.setVisible(this._form);
-    //     }
-    // }
+    set nextBid(value: number) {
+        this._input.value = String(value);
+    }
+    set history(value: number[]) {
+        this._bids.replaceChildren(...value.map(item => createElement<HTMLUListElement>('li', {
+            className: 'lot__history-item',
+            textContent: formatNumber(item)
+        })));
+    }
+    set status(value: LotStatus) {
+        if (value !== 'active') {
+            this.setHidden(this._history);
+            this.setHidden(this._form);
+        } else {
+            this.setVisible(this._history);
+            this.setVisible(this._form);
+        }
+    }
 
-    // focus() {
-    //     this._input.focus();
-    // }
+    focus() {
+        this._input.focus();
+    }
 }
 
-// доделать
+export interface BidStatus {
+    amount: number,
+    status: boolean;
+}
+
+export class BidItem extends Card<BidStatus> {
+    protected _amount: HTMLElement;
+    protected _status: HTMLElement;
+    protected _selector: HTMLInputElement;
+
+    constructor(container: HTMLElement, actions?: ICardActions) {
+        super('bid', container, actions);
+        this._amount = ensureElement<HTMLElement>(`.bid__amount`, container);
+        this._status = ensureElement<HTMLElement>(`.bid__status`, container);
+        this._selector = container.querySelector(`.bid__selector-input`);
+
+        if (!this._button && this._selector) {
+            this._selector.addEventListener('change', (event: MouseEvent) => {
+                actions?.onClick?.(event);
+            })
+        }
+    }
+
+    set status({amount, status}: BidStatus) {
+        this.setText(this._amount, formatNumber(amount));
+
+        if (status) this.setVisible(this._status);
+        else this.setHidden(this._status);
+    }
+}
